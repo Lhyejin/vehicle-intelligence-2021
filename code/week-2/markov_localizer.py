@@ -47,6 +47,9 @@ def motion_model(position, mov, priors, map_size, stdev):
     # moving to the current position from that prior.
     # Multiply this probability to the prior probability of
     # the vehicle "was" at that prior position.
+    for i in range(map_size):
+        position_prob += norm_pdf(position-i, mov, stdev**2) * priors[i]
+
     return position_prob
 
 # Observation model (assuming independent Gaussian)
@@ -56,14 +59,22 @@ def observation_model(landmarks, observations, pseudo_ranges, stdev):
 
     # TODO: Calculate the observation model probability as follows:
     # (1) If we have no observations, we do not have any probability.
+    if len(observations) == 0:
+        return 0.0
     # (2) Having more observations than the pseudo range indicates that
     #     this observation is not possible at all.
+    elif len(observations) > len(pseudo_ranges):
+        return 0.0
     # (3) Otherwise, the probability of this "observation" is the product of
     #     probability of observing each landmark at that distance, where
     #     that probability follows N(d, mu, sig) with
     #     d: observation distance
     #     mu: expected mean distance, given by pseudo_ranges
     #     sig: squared standard deviation of measurement
+    else:
+        for i in range(len(observations)):
+            distance_prob *= norm_pdf(observations[i], pseudo_ranges[i], stdev**2)
+
     return distance_prob
 
 # Normalize a probability distribution so that the sum equals 1.0.
