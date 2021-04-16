@@ -136,7 +136,7 @@ class ParticleFilter:
         weights = []
         for p in self.particles:
             normalized_weights += p['w']
-        print(normalized_weights)
+        # print(normalized_weights)
         for i in range(self.num_particles):
             weights.append(self.particles[i]['w'] / normalized_weights)
 
