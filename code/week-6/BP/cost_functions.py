@@ -23,7 +23,7 @@ computed by get_helper_data function.
 REACH_GOAL = 0.5
 EFFICIENCY = 0.5
 
-DEBUG = False
+DEBUG = True
 
 def goal_distance_cost(vehicle, trajectory, predictions, data):
     '''
@@ -34,9 +34,9 @@ def goal_distance_cost(vehicle, trajectory, predictions, data):
     '''
     distance = abs(data.end_distance_to_goal)
     if distance > 0:
-        return 1.0 - 2.0 * exp(-(abs(2.0 * vehicle.goal_lane - data.intended_lane - data.final_lane) / distance))
+        return abs(2.0 * vehicle.goal_lane - data.intended_lane - data.final_lane) / distance
     else:
-        return 1.
+        return 0.
 
 
 def inefficiency_cost(vehicle, trajectory, predictions, data):
@@ -47,8 +47,8 @@ def inefficiency_cost(vehicle, trajectory, predictions, data):
     '''
     intended_vel = velocity(predictions, data.intended_lane) if velocity(predictions, data.intended_lane) else vehicle.target_speed
     final_vel = velocity(predictions, data.final_lane) if velocity(predictions, data.final_lane) else vehicle.target_speed
-
-    return (2.0 * vehicle.target_speed - intended_vel - final_vel) / vehicle.target_speed
+    # intended lane, final_vel에 다른 vehicle의 속도가 없을 경우,
+    return abs(2.0 * vehicle.target_speed - intended_vel - final_vel) / vehicle.target_speed
 
 
 def calculate_cost(vehicle, trajectory, predictions):

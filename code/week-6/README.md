@@ -1,6 +1,34 @@
 # Week 6 - Prediction & Behaviour Planning
 
 ---
+## Report
+
+###1. GNB(Gaussian Naive Bayes)
+
+Gaussian Naive Bayes에서 구현해야하는 부분은 train data를 이용하여 train시키는 함수와
+prediction을 시키는 함수이다. 
+
+train 함수는 Train 데이터 X와 Y가 들어오면 각 behavior(action) 데이터의 s,d, s_dot, d_dot의 평균과 분산을
+구한다. for문을 돌면서 모든 train 데이터를 각 action의 dictionary에 저장한 후, mean과 varinace를 계산한다.
+
+predict 함수는 위에서 구한 mean과 variance를 이용하여 각 action에 대한 확률을 계산한 후, 가장 높은 확률을 가지는 action을 선택하도록 한다.
+여기서 conditional probability를 각 action에 대한 확률에 곱해준다. 
+현재 모든 action이 선택될 확률은 같지만, 만약 각 action에 대한 확률이 다를 경우에는 반드시 곱해주어야 한다.
+
+
+###2. BP(Behavior Planning)
+
+Behavior Planning에서 구현해야하는 부분은 cost function과 vehicle의 transition function이다.
+vehicle의 transition 함수는 가능한 다음 state에서 가장 좋은 trajectory를 고르는 것이다.
+successor_states 함수를 이용하여 가능한 다음 state를 구한 후에, 
+generate_trajectory 함수로 그 state에 대한 trajectory를 생성한다.
+생성한 trajectory의 cost function을 구한 후, minimum cost를 가지는 trajectory를 선택한다.
+
+cost function은 goal distance cost와 inefficiency cost가 있다.
+goal distance function은 가려는 lane과 goal lane의 거리에 비례하도록 구현한다.
+다음에 갈 예정인 lane과 trajectory의 끝의 lane에서 goal lane과의 거리를 비교하여 cost fucntion을 구한다. 
+inefficiency_cost 함수는 intended lane과 final lane이 더 높은 속도를 가지도록 하는 함수이다.
+
 
 ## Assignment #1
 

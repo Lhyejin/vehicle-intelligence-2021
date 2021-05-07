@@ -58,11 +58,8 @@ class Vehicle(object):
         for state in possible_state:
             trajectory = self.generate_trajectory(state, predictions)
             cost = calculate_cost(self, trajectory, predictions)
-            costs.append({'cost': cost, 'trajectory':trajectory})
+            costs.append({'cost': cost, 'trajectory': trajectory})
 
-
-        # TODO: implement state transition function based on the cost
-        #       associated with each transition.
         minimum_cost_traj = None
         min_cost = 9999999
         for ele in costs:
