@@ -1,8 +1,11 @@
 import numpy as np
+from math import pi, degrees
+# Determine how many grid cells to have for theta-axis.
+
+
 
 class HybridAStar:
-    # Determine how many grid cells to have for theta-axis.
-    NUM_THETA_CELLS = 90
+    NUM_THETA_CELLS = 360
 
     # Define min, max, and resolution of steering angles
     omega_min = -35
@@ -10,9 +13,8 @@ class HybridAStar:
     omega_step = 5
 
     # A very simple bicycle model
-    speed = 1.0
+    speed = 0.5
     length = 0.5
-
     # Initialize the search structure.
     def __init__(self, dim):
         self.dim = dim
@@ -30,14 +32,21 @@ class HybridAStar:
         next_states = []
 
         # Consider a discrete selection of steering angles.
-        for delta_t in []:
-            pass
-            # TODO: implement the trajectory generation based on
+        for delta_t in range(self.omega_min, self.omega_max+1, self.omega_step):
             # a simple bicycle model.
             # Let theta2 be the vehicle's heading (in radian)
             # between 0 and 2 * PI.
             # Check validity and then add to the next_states list.
-
+            omega = self.speed / self.length * np.tan(delta_t)
+            next_x = x + self.speed * np.cos(theta)
+            next_y = y + self.speed * np.sin(theta)
+            next_theta = theta + omega
+            while next_theta > 2 * pi:
+                next_theta -= 2 * pi
+            while next_theta < 0:
+                next_theta += 2 * pi
+            next_f = g2 + self.heuristic(next_x, next_y, goal)
+            next_states.append({'f': next_f, 'g': g2, 'x': next_x, 'y': next_y, 't': next_theta})
         return next_states
 
     # Perform a breadth-first search based on the Hybrid A* algorithm.
@@ -66,7 +75,6 @@ class HybridAStar:
         # Examine the open list, according to the order dictated by
         # the heuristic function.
         while len(opened) > 0:
-            # TODO: implement prioritized breadth-first search
             # for the hybrid A* algorithm.
             opened.sort(key=lambda s : s['f'], reverse=True)
             curr = opened.pop()
@@ -79,7 +87,17 @@ class HybridAStar:
             # Compute reachable new states and process each of them.
             next_states = self.expand(curr, goal)
             for n in next_states:
-                pass
+                stack = self.theta_to_stack_num(n['t'])
+                # next x, y가 유효한지 / grid['x']['y'] != 1
+                next_x, next_y = self.idx(n['x']), self.idx(n['y'])
+                if 0 <= next_x < grid.shape[0] \
+                        and 0 <= next_y < grid.shape[1] \
+                        and grid[next_x][next_y] == 0 \
+                        and self.closed[stack][next_x][next_y] != 1:
+                    opened.append(n)
+
+                    self.came_from[stack][next_x][next_y] = curr
+                    self.closed[stack][next_x][next_y] = 1
         else:
             # We weren't able to find a valid path; this does not necessarily
             # mean there is no feasible trajectory to reach the goal.
@@ -90,11 +108,16 @@ class HybridAStar:
 
     # Calculate the stack index of a state based on the vehicle's heading.
     def theta_to_stack_num(self, theta):
-        # TODO: implement a function that calculate the stack number
         # given theta represented in radian. Note that the calculation
         # should partition 360 degrees (2 * PI rad) into different
         # cells whose number is given by NUM_THETA_CELLS.
-        return 0
+        degree = degrees(theta)
+        interval = 360 / self.NUM_THETA_CELLS
+        theta_idx = int(np.floor(degree / interval))
+        if degree % interval == 0 and degree != 0.:
+            theta_idx -= 1
+
+        return theta_idx
 
     # Calculate the index of the grid cell based on the vehicle's position.
     def idx(self, pos):
@@ -103,8 +126,9 @@ class HybridAStar:
 
     # Implement a heuristic function to be used in the hybrid A* algorithm.
     def heuristic(self, x, y, goal):
-        # TODO: implement a heuristic function.
-        return 0
+        # euclidean distance
+        distance = np.linalg.norm([goal[0]-x, goal[1]-y])
+        return distance
 
     # Reconstruct the path taken by the hybrid A* algorithm.
     def reconstruct_path(self, start, goal):
