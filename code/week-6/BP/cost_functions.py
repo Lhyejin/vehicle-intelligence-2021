@@ -20,8 +20,8 @@ computed by get_helper_data function.
 '''
 
 # weights for costs
-REACH_GOAL = 0.0
-EFFICIENCY = 1.
+REACH_GOAL = 0.5
+EFFICIENCY = 0.5
 
 DEBUG = False
 
